@@ -179,6 +179,13 @@ func NextQuestion(c *gin.Context) {
 		return
 	}
 
+	// Accept an explicit index from the host so skipping stays in sync.
+	// Falls back to auto-increment if the body is absent or malformed.
+	var body struct {
+		Index *int `json:"index"`
+	}
+	_ = c.ShouldBindJSON(&body)
+
 	var game models.GameSession
 	if err := database.Collection("game_sessions").
 		Find(context.Background(), bson.M{"_id": gameObjID, "host_id": userID}).
@@ -188,6 +195,10 @@ func NextQuestion(c *gin.Context) {
 	}
 
 	nextIdx := game.CurrentQuestion + 1
+	if body.Index != nil {
+		nextIdx = *body.Index
+	}
+
 	questionStartedAt := time.Now()
 
 	err = database.Collection("game_sessions").

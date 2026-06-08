@@ -30,6 +30,11 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	server.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Welcome to RapidQuiz API",
+		})
+	})
 	routers.RegisterAuthRoutes(server)
 	routers.RegisterQuizRoutes(server)
 	routers.RegisterGameRoutes(server)
